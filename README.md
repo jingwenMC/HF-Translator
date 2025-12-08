@@ -20,19 +20,20 @@
 
 **具体要求**：
 
-0. **准备**：了解一下Hugging Face平台和大模型做翻译的基本原理，注册Hugging Face并获得access_token。
-1. **环境修复**：
-   - `requirements.txt` 中包含无法安装或错误的包。请修复它，生成一个新的 `requirements_fixed.txt`。
-   - **考核点**：你需要识别出哪些包是必须的，哪些是错误的，哪些是多余的。
+0. **准备**：
+-[x] 了解一下Hugging Face平台和大模型做翻译的基本原理，注册Hugging Face并获得access_token。
+1. =**环境修复**：
+   - [x] (To be improved) `requirements.txt` 中包含无法安装或错误的包。请修复它，生成一个新的 `requirements_fixed.txt`。
+   - [x] **考核点**：你需要识别出哪些包是必须的，哪些是错误的，哪些是多余的。
 2. **代码重构**：
-   - **API 升级**：弃用过时的接口，改用 `huggingface_hub.InferenceClient` 或 **最新的** `OpenAI` 兼容接口（推荐查阅最新文档https://huggingface.co/docs/inference-providers/en/index），任意一个即可。
-   - **模型修正**：修正错误的模型名称，并显式指定 Provider 策略为 `:fastest`。你可以使用任何一个你觉得好用的大模型，推荐使用``openai/gpt-oss-120b:fastest``。除此以外，模型的参数也有若干错误，请了解这些参数都代表着什么，并选择合适的参数。
-   - **Prompt 优化**：当前的 Prompt 效果很差，请设计一个更合理的、更适合学术论文的System Prompt。
-   - **异常处理**：增加 `try-except` 和 `tenacity`（或手动）重试机制，防止因网络波动或 Rate Limit (429) 导致程序崩溃。
-   - **Token 安全**：**严禁**在代码中硬编码 Token，请改为从环境变量读取。
+   - [x] **API 升级**：弃用过时的接口，改用 `huggingface_hub.InferenceClient` 或 **最新的** `OpenAI` 兼容接口（推荐查阅最新文档https://huggingface.co/docs/inference-providers/en/index），任意一个即可。
+   - [x] **模型修正**：修正错误的模型名称，并显式指定 Provider 策略为 `:fastest`。你可以使用任何一个你觉得好用的大模型，推荐使用``openai/gpt-oss-120b:fastest``。除此以外，模型的参数也有若干错误，请了解这些参数都代表着什么，并选择合适的参数。
+   - [x] **Prompt 优化**：当前的 Prompt 效果很差，请设计一个更合理的、更适合学术论文的System Prompt。
+   - [ ] **异常处理**：增加 `try-except` 和 `tenacity`（或手动）重试机制，防止因网络波动或 Rate Limit (429) 导致程序崩溃。
+   - [x] **Token 安全**：**严禁**在代码中硬编码 Token，请改为从环境变量读取。
 3. **工程优化 (Bonus)**：
-   - **进度显示**：引入 `tqdm` 显示进度。
-   - **断点续传**：如果程序在第 3 条中断，下次运行能否从第 4 条开始？（而不是从头跑）。
+   - [x] **进度显示**：引入 `tqdm` 显示进度。
+   - [ ] **断点续传**：如果程序在第 3 条中断，下次运行能否从第 4 条开始？（而不是从头跑）。
 
 **提交物**：
 

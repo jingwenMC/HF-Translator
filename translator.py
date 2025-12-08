@@ -20,8 +20,6 @@ def translate_text(model_name,text):  # 用来调用API翻译传入的文本
             temperature=0.1,
             max_tokens=16384,
         )
-        print(text)
-        print(response)
         return str(response.choices[0].message.content).replace(",","，").replace("\n"," ")
     except Exception as e:
         print(f"Error: {e}")
@@ -73,17 +71,22 @@ def main():
     )
     # 读取数据
     df = pd.read_csv(inp)
-
+    rows = []
+    for index, row in df.iterrows():
+        rows.append(row)
+    tqdm.write(f'There are {len(rows)} rows in total.')
     # 遍历每一行，翻译摘要
     with open(output, "w", encoding="utf-8") as f:
-        for index, row in tqdm(df.iterrows(),position=0, file=sys.stdout, desc="Translation Process:"):
+        for index, row in enumerate(tqdm(rows, position=0, file=sys.stdout, desc="Translation Process:")):
             abstract = row['abstract']
             tqdm.write(f"Translating paper #{index+1}...")
             cn_abstract = translate_text(model_name,abstract)
+            if cn_abstract is None:
+                pass #TODO:异常处理，明天再写
             # 将结果写入新文件
             f.write(f"{index+1},{cn_abstract}\n")
             time.sleep(1)  # 避免请求过于频繁
-
+    tqdm.write('Translation completed.')
 
 if __name__ == "__main__":
     main()
