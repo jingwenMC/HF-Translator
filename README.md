@@ -1,47 +1,180 @@
-# 入门项目：Project HF-Translator (Buggy Paper Translator)
+# HF-Translator - 论文翻译工具
 
-## 背景故事：
+一个基于 Hugging Face Inference Providers 的免费API，用于批量翻译英文学术论文标题和摘要为中文的工具。
 
-> “在科研过程中，我们需要快速浏览海量的英文文献。为了加快扫描文献的速度，我们通常会使用一些大模型来帮我们把扫下来的文献翻译成中文。要在没有本地 GPU 显存的情况下实现这一目标，我们需要利用云端的大模型推理服务。你的任务是：利用 **Hugging Face Inference Providers** 的免费层级（Free Tier），编写一个 Python 脚本，自动将一批英文论文的标题和摘要翻译成中文。
->
-> 这是我们组之前一位实习生写的代码 Demo，目标是调用 Hugging Face 的 Inference API 来翻译论文。他虽然把基本的代码逻辑写通了，但他离职前把环境搞乱了，代码也跑不通，还有一堆拼写错误。
->
-> 你的任务是：接手这个烂摊子，修复环境依赖，重构代码逻辑，并让它成功跑完 iccv2025.csv 的翻译任务并给出优秀的文献翻译。”
+## 功能特点
 
-------
+- 🚀 使用 Hugging Face 免费 API 进行批量翻译
+- 📄 支持 CSV 格式的论文数据文件
+- 🔄 断点续传功能，支持从上次中断处继续翻译
+- 📊 实时进度显示，使用 tqdm 进度条
+- 🔧 灵活的配置选项（命令行参数 + 环境变量）
+- 🛡️ 完善的错误处理和重试机制
+- 🔒 Token 安全管理，不在代码中硬编码
 
-## 任务书
+## 环境要求
 
-**任务目标：**
+- Python 3.13
 
-修复并重构 translator_legacy.py，使其能够稳定、高效地调用 Hugging Face 免费 API 完成翻译任务，将文件夹下的iccv2025.csv翻译为中文。
+## 安装步骤
 
-****
+### 1. 克隆仓库
+```bash
+git clone https://github.com/jingwenMC/HF-Translator
+cd HF-Translator
+```
 
-**具体要求**：
+### 2. 安装依赖
+```bash
+pip install -r requirements_fixed.txt
+```
 
-0. **准备**：
--[x] 了解一下Hugging Face平台和大模型做翻译的基本原理，注册Hugging Face并获得access_token。
-1. =**环境修复**：
-   - [x] (To be improved) `requirements.txt` 中包含无法安装或错误的包。请修复它，生成一个新的 `requirements_fixed.txt`。
-   - [x] **考核点**：你需要识别出哪些包是必须的，哪些是错误的，哪些是多余的。
-2. **代码重构**：
-   - [x] **API 升级**：弃用过时的接口，改用 `huggingface_hub.InferenceClient` 或 **最新的** `OpenAI` 兼容接口（推荐查阅最新文档https://huggingface.co/docs/inference-providers/en/index），任意一个即可。
-   - [x] **模型修正**：修正错误的模型名称，并显式指定 Provider 策略为 `:fastest`。你可以使用任何一个你觉得好用的大模型，推荐使用``openai/gpt-oss-120b:fastest``。除此以外，模型的参数也有若干错误，请了解这些参数都代表着什么，并选择合适的参数。
-   - [x] **Prompt 优化**：当前的 Prompt 效果很差，请设计一个更合理的、更适合学术论文的System Prompt。
-   - [x] **异常处理**：增加 `try-except` 和 `tenacity`（或手动）重试机制，防止因网络波动或 Rate Limit (429) 导致程序崩溃。
-   - [x] **Token 安全**：**严禁**在代码中硬编码 Token，请改为从环境变量读取。
-3. **工程优化 (Bonus)**：
-   - [x] **进度显示**：引入 `tqdm` 显示进度。
-   - [x] **断点续传**：如果程序在第 3 条中断，下次运行能否从第 4 条开始？（而不是从头跑）。
+### 3. 配置 Hugging Face Token
+有两种方式设置 Token：
 
-**提交物**：
+**方式一：环境变量（推荐）**
+```bash
+# Linux/macOS
+export HF_TOKEN="your_huggingface_token_here"
 
-1. 修复后的代码仓库链接（包含 commit 记录）。
-2. 运行成功的 `result.csv`。输出格式参考本文件夹下的``example_result.py``。
-3. 一份简短的 `FIX_LOG.md`，列出你发现了哪些坑，以及是如何解决的。
-4. 一个简单的README，描述这个项目是干什么的，如何配置环境，如何运行。
+# Windows (PowerShell)
+$env:HF_TOKEN="your_huggingface_token_here"
 
-**注意事项**：
-1. 你可以自由地使用任何搜索引擎、AI工具，但我们在面试的时候可能会考核你对代码逻辑（以及其正确性）的理解；
-2. 推荐使用git全程管理你的代码。代码完成后提交到一个GitHub仓库并将url发送到randy.bh.li@foxmail.com。邮件标题为【2025科研实习考核-姓名】。
+# Windows (CMD)
+set HF_TOKEN=your_huggingface_token_here
+```
+
+**方式二：使用命令行参数**  
+
+示例：
+```bash
+python translator.py papers.csv -t hf_xxx
+```
+
+## 使用方法
+
+### 基本用法
+```bash
+python translator.py input.csv
+```
+这会使用默认设置翻译 `input.csv` 文件，输出结果为 `result.csv`
+
+### 完整选项
+```bash
+python translator.py [OPTIONS] <输入文件>
+```
+
+#### 参数说明：
+- `<输入文件>`：要翻译的CSV文件路径（必需）
+
+#### 选项：
+| 选项 | 缩写 | 说明             | 默认值 |
+|------|------|----------------|--------|
+| `--help` | `-h` | 显示帮助信息         | - |
+| `--output` | `-o` | 指定输出文件         | `result.csv` |
+| `--token` | `-t` | 手动指定 API Token | 使用环境变量 HF_TOKEN |
+| `--url` | `-u` | API基础URL       | `https://router.huggingface.co/v1` |
+| `--model` | `-m` | 指定模型           | `openai/gpt-oss-120b:fastest` |
+
+### 示例
+
+1. **基本翻译**：
+```bash
+python translator.py iccv2025.csv
+```
+
+2. **指定输出文件**：
+```bash
+python translator.py iccv2025.csv -o translated_papers.csv
+```
+
+3. **指定模型和Token**：
+```bash
+python translator.py iccv2025.csv -m deepseek-ai/DeepSeek-V3.2 -t hf_xxx
+```
+
+4. **获取帮助**：
+```bash
+python translator.py -h
+```
+
+## 输入文件格式
+
+输入文件必须是CSV格式，包含以下列（顺序不限，但必须有这些列名）：
+
+| 列名 | 说明 | 示例 |
+|------|------|------|
+| `title` | 论文标题 | "Deep Learning for Computer Vision" |
+| `authors` | 作者列表 | "John Doe, Jane Smith" |
+| `abstract` | 论文摘要 | "This paper presents a novel approach..." |
+| `date` | 发表日期 | "2025-01-15" |
+| `paper_url` | 论文链接 | "https://arxiv.org/abs/xxxx.xxxxx" |
+| `score` | 评分（可选） | "8.5" |
+
+示例输入文件： 参见iccv2025.csv
+
+## 输出文件格式
+
+输出文件为CSV格式，包含所有原始列，并新增两列：
+
+| 新增列 | 说明 |
+|--------|------|
+| `title_cn` | 中文标题 |
+| `abstract_cn` | 中文摘要 |
+
+示例输出文件：参见result.csv
+
+## 断点续传
+
+工具支持断点续传功能：
+- 如果程序中断，重新运行会自动跳过已翻译的记录
+- 无需手动管理进度，工具会自动检测已处理的记录
+- 每次翻译完成一行后立即写入文件，确保进度保存
+
+## 模型配置
+
+默认使用`openai/gpt-oss-120b:fastest`，不过也可以通过 `-m` 参数指定，例如：
+```bash
+python translator.py papers.csv -m deepseek-ai/DeepSeek-V3.2
+```
+
+## 错误处理
+
+工具包含完善的错误处理机制：
+
+1. **网络重试**：自动重试失败的API请求（最多5次）
+2. **速率限制**：内置一定的延迟，避免触发API限制
+3. **进度保存**：每次成功翻译后立即保存结果，出错时可以在修正后断点续传
+
+## 注意事项
+
+1. **免费额度**：Hugging Face 免费API有使用限制，请合理安排翻译量
+2. **文件编码**：确保CSV文件使用UTF-8编码
+3. **翻译质量**：对于专业术语，建议人工核对翻译结果
+4. **API稳定性**：如遇API不稳定，建议稍后重试或更换模型
+
+## 故障排除
+
+### 常见问题
+
+1. **"HF_TOKEN is not set"**
+   - 解决方法：设置环境变量或使用 `-t` 参数
+
+2. **"429 Too Many Requests"**
+   - 解决方法：程序会自动重试，或停止程序，等待一段时间后继续
+
+3. **CSV格式错误**
+   - 解决方法：确保输入文件格式正确，包含必需的列
+
+4. **API连接失败**
+   - 解决方法：检查网络连接，或尝试更换模型
+
+## 性能优化
+
+- 默认设置已优化平衡速度和稳定性
+- 可通过调整 `time.sleep()` 值控制请求频率
+- 大量翻译时建议分批处理
+
+## 贡献
+
+欢迎提交Issue和Pull Request来改进这个项目。
